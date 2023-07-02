@@ -7,37 +7,43 @@ namespace FCamara.Cart.UnitTests
     public class CartShould
     {
         private readonly Mock<IProductCatalogue> _productCatalogueMock = new();
+        private readonly Guid _productOne = Guid.Parse("15a12180-958f-46cc-a8a1-e95eb82839d3");
 
         public CartShould()
         {
+            var products = new List<Product>();
+            foreach (var product in products)
+            {
+                _productCatalogueMock.Setup(x => x.GetProduct(product.Id))
+                    .ReturnsAsync(product);
+            }
         }
 
-        [Fact]
-        public void Calculate()
+        [Theory]
+        [InlineData(2, 10)]
+        [InlineData(3, 15)]
+        [InlineData(4, 20)]
+        public void Calculate(int quantiy, decimal totalPrice)
         {
-            var productId = Guid.Parse("15a12180-958f-46cc-a8a1-e95eb82839d3");
-            var items = new List<CartItem>()
+            var items = new List<CartItem>
             {
-                new(productId, quantity: 2)
+                new(_productOne, quantity: quantiy)
             };
             var cart = new Cart(items);
-            _productCatalogueMock.Setup(x => x.GetProduct(productId))
-                .ReturnsAsync(new Product()
-                {
-                    Id = productId,
-                    Price = 5
-                });
 
             var calculatedCart = cart.Calculate(_productCatalogueMock.Object);
 
-            calculatedCart.TotalPrice.Should().Be(10);
+            calculatedCart.TotalPrice.Should().Be(totalPrice);
         }
     }
 
     public class CartItem
     {
+        public int Quantity { get; }
+
         public CartItem(Guid productId, int quantity)
         {
+            Quantity = quantity;
         }
     }
 
@@ -52,7 +58,8 @@ namespace FCamara.Cart.UnitTests
 
         public CalculatedCart Calculate(IProductCatalogue productCatalogue)
         {
-            return new CalculatedCart(10);
+            var totalPrice = Items.First().Quantity * 5;
+            return new CalculatedCart(totalPrice);
         }
     }
 
