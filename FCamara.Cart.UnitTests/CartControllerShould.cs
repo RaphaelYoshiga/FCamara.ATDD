@@ -38,5 +38,20 @@ namespace FCamara.Cart.UnitTests
             var okObjectResult = ((OkObjectResult)actionResult);
             okObjectResult.Value.Should().Be(response);
         }
+
+        [Fact]
+        public async Task HandleUnkownProducts()
+        {
+            var request = new CalculateCartRequest();
+            var cartMock = new Mock<ICart>();
+            _requestMapper.Setup(x => x.Map(request)).Returns(cartMock.Object);
+            var calculatedCart = new Mock<ICalculatedCart>().Object;
+            cartMock.Setup(x => x.Calculate(_catalogueMock.Object))
+                .ThrowsAsync(new UnknownProductException());
+            
+            var actionResult = await _controller.Calculate(request);
+
+            actionResult.Should().BeOfType<BadRequestResult>();
+        }
     }
 }

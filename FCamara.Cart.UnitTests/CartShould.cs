@@ -1,3 +1,4 @@
+using System.Formats.Asn1;
 using FCamara.Cart.Domain;
 using FluentAssertions;
 using Moq;
@@ -68,6 +69,18 @@ namespace FCamara.Cart.UnitTests
             var calculatedCart = await cart.Calculate(_productCatalogueMock.Object);
 
             calculatedCart.TotalPrice.Should().Be(totalPrice);
+        }
+
+        [Fact]
+        public async Task ThrowForUnkwonProductId()
+        {
+            var items = new List<CartItem>
+            {
+                new(Guid.NewGuid(), quantity: 1)
+            };
+            var cart = new Domain.Cart(items);
+
+            await Assert.ThrowsAsync<UnknownProductException>(async () => await cart.Calculate(_productCatalogueMock.Object));
         }
 
         [Fact]

@@ -24,8 +24,15 @@ public class CartController : ControllerBase
     public async Task<IActionResult> Calculate(CalculateCartRequest request)
     {
         var cart = _requestMapper.Map(request);
-        var calculatedCart = await cart.Calculate(_catalogue);
-        var cartResponse = _responseMapper.Map(calculatedCart);
-        return Ok(cartResponse);
+        try
+        {
+            var calculatedCart = await cart.Calculate(_catalogue);
+            var cartResponse = _responseMapper.Map(calculatedCart);
+            return Ok(cartResponse);
+        }
+        catch (UnknownProductException e)
+        {
+            return BadRequest();
+        }
     }
 }

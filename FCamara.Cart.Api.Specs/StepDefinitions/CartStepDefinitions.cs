@@ -62,6 +62,12 @@ namespace FCamara.Cart.Api.Specs.StepDefinitions
             _response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
 
+        [Then(@"the response should be 400 Bad Request")]
+        public void ThenTheResponseShouldBeBadRequest()
+        {
+            _response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
         [Then(@"the cart response should contain those items")]
         public async Task ThenTheCartResponseShouldContainThoseItems(Table table)
         {

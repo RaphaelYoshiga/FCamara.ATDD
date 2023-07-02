@@ -17,6 +17,9 @@ public class Cart : ICart
         foreach (var item in Items)
         {
             var product = await productCatalogue.GetProduct(item.ProductId);
+            if (product == null)
+                throw new UnknownProductException();
+
             calculatedCartItems.Add(new CalculatedCartItem()
             {
                 ProductId = item.ProductId,
