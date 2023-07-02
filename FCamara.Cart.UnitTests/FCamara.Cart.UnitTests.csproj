@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FCamara.Cart.Api\FCamara.Cart.Api.csproj" />
     <ProjectReference Include="..\FCamara.Cart.Domain\FCamara.Cart.Domain.csproj" />
   </ItemGroup>
 
