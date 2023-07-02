@@ -1,6 +1,12 @@
+using FCamara.Cart.Api;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddSingleton<ICartRequestMapper, CartRequestMapper>();
+builder.Services.AddSingleton<ICartResponseMapper, CartResponseMapper>();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

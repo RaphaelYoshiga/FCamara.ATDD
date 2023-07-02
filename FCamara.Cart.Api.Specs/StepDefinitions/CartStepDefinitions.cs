@@ -34,7 +34,6 @@ namespace FCamara.Cart.Api.Specs.StepDefinitions
         public void GivenIWeHaveThisCatalogueOfProducts(Table table)
         {
             var productsInStock = table.CreateSet<Product>();
-
             foreach (var product in productsInStock)
             {
                 _catalogueMock.Setup(x => x.GetProduct(product.Id))
@@ -67,7 +66,7 @@ namespace FCamara.Cart.Api.Specs.StepDefinitions
         public async Task ThenTheCartResponseShouldContainThoseItems(Table table)
         {
             var responseJson = await _response.Content.ReadAsStringAsync();
-            _cartResponse = JsonSerializer.Deserialize<CartResponse>(responseJson);
+            _cartResponse = JsonSerializer.Deserialize<CartResponse>(responseJson, new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
             var expectedCartItems = table.CreateSet<CartItemResponse>().ToList();
             _cartResponse!.Items.Should().BeEquivalentTo(expectedCartItems);
