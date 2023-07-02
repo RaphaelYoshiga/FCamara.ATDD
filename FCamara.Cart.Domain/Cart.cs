@@ -1,6 +1,6 @@
 namespace FCamara.Cart.Domain;
 
-public class Cart
+public class Cart : ICart
 {
     public Cart(IEnumerable<CartItem> cartItems)
     {
@@ -9,7 +9,7 @@ public class Cart
 
     public IEnumerable<CartItem> Items { get; }
 
-    public async Task<CalculatedCart> Calculate(IProductCatalogue productCatalogue)
+    public async Task<ICalculatedCart> Calculate(IProductCatalogue productCatalogue)
     {
         var calculatedCartItems = new List<CalculatedCartItem>();
 

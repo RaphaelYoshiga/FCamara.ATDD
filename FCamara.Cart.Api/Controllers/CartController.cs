@@ -21,10 +21,11 @@ public class CartController : ControllerBase
     }
 
     [HttpPost(Name = "CalculateCart")]
-    public IActionResult Calculate(CalculateCartRequest request)
+    public async Task<IActionResult> Calculate(CalculateCartRequest request)
     {
         var cart = _requestMapper.Map(request);
-        var cartResponse = _responseMapper.Map(cart.Calculate(_catalogue));
+        var calculatedCart = await cart.Calculate(_catalogue);
+        var cartResponse = _responseMapper.Map(calculatedCart);
         return Ok(cartResponse);
     }
 }

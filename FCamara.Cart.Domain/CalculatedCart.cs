@@ -1,6 +1,6 @@
 namespace FCamara.Cart.Domain;
 
-public class CalculatedCart
+public class CalculatedCart : ICalculatedCart
 {
     public CalculatedCart(IEnumerable<CalculatedCartItem> items)
     {

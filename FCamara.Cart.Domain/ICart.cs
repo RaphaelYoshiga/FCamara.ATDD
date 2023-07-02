@@ -2,5 +2,6 @@
 
 public interface ICart
 {
-    ICalculatedCart Calculate(IProductCatalogue productCatalogue);
+    Task<ICalculatedCart> Calculate(IProductCatalogue productCatalogue);
+    IEnumerable<CartItem> Items { get; }
 }
