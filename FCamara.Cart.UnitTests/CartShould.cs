@@ -17,12 +17,16 @@ namespace FCamara.Cart.UnitTests
                 new()
                 {
                     Id = _productOne,
-                    Price = 5
+                    Price = 5,
+                    Name="Watch",
+                    Description = "Nice Watch"
                 },
                 new()
                 {
                     Id = _productTwo,
-                    Price = 3.41m
+                    Price = 3.41m,
+                    Name = "Pen",
+                    Description = "Blue Pen"
                 }
             };
             foreach (var product in products)
@@ -42,7 +46,7 @@ namespace FCamara.Cart.UnitTests
             {
                 new(_productOne, quantity: quantiy)
             };
-            var cart = new Cart(items);
+            var cart = new Domain.Cart(items);
 
             var calculatedCart = await cart.Calculate(_productCatalogueMock.Object);
 
@@ -59,54 +63,47 @@ namespace FCamara.Cart.UnitTests
             {
                 new(_productTwo, quantity: quantiy)
             };
-            var cart = new Cart(items);
+            var cart = new Domain.Cart(items);
 
             var calculatedCart = await cart.Calculate(_productCatalogueMock.Object);
 
             calculatedCart.TotalPrice.Should().Be(totalPrice);
         }
-    }
 
-    public class CartItem
-    {
-        public int Quantity { get; }
-        public Guid ProductId { get; set; }
-
-        public CartItem(Guid productId, int quantity)
+        [Fact]
+        public async Task EnhanceItemProperties()
         {
-            ProductId = productId;
-            Quantity = quantity;
-        }
-    }
-
-    public class Cart
-    {
-        public Cart(IEnumerable<CartItem> cartItems)
-        {
-            Items = cartItems.ToList();
-        }
-
-        public IEnumerable<CartItem> Items { get; }
-
-        public async Task<CalculatedCart> Calculate(IProductCatalogue productCatalogue)
-        {
-            var totalPrice = 0m;
-            foreach (var item in Items)
+            var items = new List<CartItem>
             {
-                var product = await productCatalogue.GetProduct(item.ProductId);
-                totalPrice += item.Quantity * product.Price;
-            }
-            return new CalculatedCart(totalPrice);
-        }
-    }
+                new(_productOne, quantity: 2),
+                new(_productTwo, quantity: 3)
+            };
+            var cart = new Domain.Cart(items);
 
-    public class CalculatedCart
-    {
-        public CalculatedCart(decimal totalPrice)
-        {
-            TotalPrice = totalPrice;
-        }
+            var calculatedCart = await cart.Calculate(_productCatalogueMock.Object);
 
-        public decimal TotalPrice { get; }
+            calculatedCart.TotalPrice.Should().Be(20.23m);
+            calculatedCart.Items.Should().BeEquivalentTo(new List<CalculatedCartItem>()
+            {
+                new()
+                {
+                    ProductId = _productOne,
+                    Quantity = 2,
+                    UnitPrice = 5,
+                    TotalPrice = 10,
+                    Name = "Watch",
+                    Description = "Nice Watch"
+                },
+                new()
+                {
+                    ProductId = _productTwo,
+                    Quantity = 3,
+                    UnitPrice = 3.41m,
+                    TotalPrice = 10.23m,
+                    Name = "Pen",
+                    Description = "Blue Pen"
+                }
+            });
+        }
     }
 }
