@@ -8,10 +8,23 @@ namespace FCamara.Cart.UnitTests
     {
         private readonly Mock<IProductCatalogue> _productCatalogueMock = new();
         private readonly Guid _productOne = Guid.Parse("15a12180-958f-46cc-a8a1-e95eb82839d3");
+        private readonly Guid _productTwo = Guid.Parse("6f6e4459-e1e7-44e6-8f23-983941939697");
 
         public CartShould()
         {
-            var products = new List<Product>();
+            var products = new List<Product>()
+            {
+                new()
+                {
+                    Id = _productOne,
+                    Price = 5
+                },
+                new()
+                {
+                    Id = _productTwo,
+                    Price = 3.41m
+                }
+            };
             foreach (var product in products)
             {
                 _productCatalogueMock.Setup(x => x.GetProduct(product.Id))
@@ -23,7 +36,7 @@ namespace FCamara.Cart.UnitTests
         [InlineData(2, 10)]
         [InlineData(3, 15)]
         [InlineData(4, 20)]
-        public void Calculate(int quantiy, decimal totalPrice)
+        public async Task CalculateProductOne(int quantiy, decimal totalPrice)
         {
             var items = new List<CartItem>
             {
@@ -31,7 +44,24 @@ namespace FCamara.Cart.UnitTests
             };
             var cart = new Cart(items);
 
-            var calculatedCart = cart.Calculate(_productCatalogueMock.Object);
+            var calculatedCart = await cart.Calculate(_productCatalogueMock.Object);
+
+            calculatedCart.TotalPrice.Should().Be(totalPrice);
+        }
+
+        [Theory]
+        [InlineData(1, 3.41)]
+        [InlineData(2, 6.82)]
+        [InlineData(3, 10.23)]
+        public async Task CalculateProductTwo(int quantiy, decimal totalPrice)
+        {
+            var items = new List<CartItem>
+            {
+                new(_productTwo, quantity: quantiy)
+            };
+            var cart = new Cart(items);
+
+            var calculatedCart = await cart.Calculate(_productCatalogueMock.Object);
 
             calculatedCart.TotalPrice.Should().Be(totalPrice);
         }
@@ -40,9 +70,11 @@ namespace FCamara.Cart.UnitTests
     public class CartItem
     {
         public int Quantity { get; }
+        public Guid ProductId { get; set; }
 
         public CartItem(Guid productId, int quantity)
         {
+            ProductId = productId;
             Quantity = quantity;
         }
     }
@@ -56,9 +88,14 @@ namespace FCamara.Cart.UnitTests
 
         public IEnumerable<CartItem> Items { get; }
 
-        public CalculatedCart Calculate(IProductCatalogue productCatalogue)
+        public async Task<CalculatedCart> Calculate(IProductCatalogue productCatalogue)
         {
-            var totalPrice = Items.First().Quantity * 5;
+            var totalPrice = 0m;
+            foreach (var item in Items)
+            {
+                var product = await productCatalogue.GetProduct(item.ProductId);
+                totalPrice += item.Quantity * product.Price;
+            }
             return new CalculatedCart(totalPrice);
         }
     }
